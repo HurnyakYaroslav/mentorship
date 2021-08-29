@@ -2,9 +2,7 @@ package com.epam.mentorship.multithreading.task1;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -16,26 +14,57 @@ Create HashMap<Integer, Integer>. The first thread adds elements into the map,
  to write your custom ThreadSafeMap with synchronization and without. Run your samples with different versions
   of Java (6, 8, and 10, 11) and measure the performance.
  */
-//todo write ThreadSafeMap
 @Slf4j
-public class Task1WithException {
-    private static final int COUNT = 10000000;
+public class Task1Implementation {
+    private static final int COUNT = 1000;
     private static Map<Integer, Integer> map;
 
     public void configureHashMapExecution(){
-        map = new HashMap<>();
+        long startTime = System.nanoTime();
+            map = new HashMap<>();
         execute();
+        long endTime = System.nanoTime();
+        log.info("Duration executeHashMap: " + (endTime - startTime) + " milliseconds : " + new Date());
     }
 
     public void configureConcurrentHashMapExecution(){
+        long startTime = System.nanoTime();
         map = new ConcurrentHashMap<>();
         execute();
+        long endTime = System.nanoTime();
+        log.info("Duration executeConcurrentHashMap: " + (endTime - startTime) + " milliseconds : " + new Date());
+    }
+
+    public void configureSynchronizedMapExecution(){
+        long startTime = System.nanoTime();
+        map = Collections.synchronizedMap(new HashMap<>());
+        execute();
+        long endTime = System.nanoTime();
+        log.info("Duration executeSynchronizedHashMap: " + (endTime - startTime) + " milliseconds : " + new Date());
+
+    }
+
+    public void configureCustomSynchronizedThreadSafeMapMapExecution(){
+        long startTime = System.nanoTime();
+        map = new CustomSynchronizedThreadSafeMap<>();
+        execute();
+        long endTime = System.nanoTime();
+        log.info("Duration executeSynchronizedHashMap: " + (endTime - startTime) + " milliseconds : " + new Date());
+    }
+
+    public void configureCustomThreadSafeMapMapExecution(){
+        long startTime = System.nanoTime();
+        map = new CustomThreadSafeMap<>();
+        execute();
+        long endTime = System.nanoTime();
+        log.info("Duration executeSynchronizedHashMap: " + (endTime - startTime) + " milliseconds : " + new Date());
+
     }
 
     static class AddMapValuesThread implements Runnable {
         @Override
         public void run() {
-            log.info("Start 'CountElements' thread: {}", Thread.currentThread().getName());
+            log.info("Start 'AddElements' thread: {}", Thread.currentThread().getName());
             for (int i = 0; i < COUNT; i++) {
                 map.put(new Random().nextInt() * 100, (int) (Math.random() * 100));
             }
@@ -67,10 +96,17 @@ public class Task1WithException {
 
         modify.start();
         sum.start();
+
+        try {
+            modify.join();
+            sum.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
-        Task1WithException obj = new Task1WithException();
-        obj.configureHashMapExecution();
+        Task1Implementation obj = new Task1Implementation();
+        obj.configureConcurrentHashMapExecution();
     }
 }
