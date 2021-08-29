@@ -1,0 +1,15 @@
+[
+  {
+    "nickname": "firstGuy",
+    "money": {
+      "EUR": 65
+    }
+  },
+  {
+    "nickname": "secondGuy",
+    "money": {
+      "EUR": 65,
+      "USD": 2000
+    }
+  }
+]

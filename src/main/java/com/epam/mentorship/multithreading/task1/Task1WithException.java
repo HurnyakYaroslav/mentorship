@@ -1,8 +1,11 @@
 package com.epam.mentorship.multithreading.task1;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /*
@@ -14,17 +17,29 @@ Create HashMap<Integer, Integer>. The first thread adds elements into the map,
   of Java (6, 8, and 10, 11) and measure the performance.
  */
 //todo write ThreadSafeMap
-
+@Slf4j
 public class Task1WithException {
+    private static final int COUNT = 10000000;
+    private static Map<Integer, Integer> map;
 
-    private static Map<Integer, Integer> map = new HashMap<>();
+    public void configureHashMapExecution(){
+        map = new HashMap<>();
+        execute();
+    }
+
+    public void configureConcurrentHashMapExecution(){
+        map = new ConcurrentHashMap<>();
+        execute();
+    }
 
     static class AddMapValuesThread implements Runnable {
         @Override
         public void run() {
-            while(true){
+            log.info("Start 'CountElements' thread: {}", Thread.currentThread().getName());
+            for (int i = 0; i < COUNT; i++) {
                 map.put(new Random().nextInt() * 100, (int) (Math.random() * 100));
             }
+            log.info("End 'AddElements' thread: {}", Thread.currentThread().getName());
 
         }
     }
@@ -32,23 +47,30 @@ public class Task1WithException {
     static class SumMapValuesThread implements Runnable {
         private int getSum() {
             return map.values().stream()
-                    .mapToInt(Integer::intValue)
-                    .sum();
+                    .reduce(Integer::sum)
+                    .orElse(0);
         }
 
         @Override
         public void run() {
-            while (true){
-                System.out.println(getSum());
+            log.info("Start 'SumElements' thread: {}", Thread.currentThread().getName());
+            for (int i = 0; i < COUNT / 3; i++) {
+                log.info("sum: {}", getSum());
             }
+            log.info("End 'SumElements' thread: {}", Thread.currentThread().getName());
         }
     }
 
-    public static void main(String[] args) {
+    private void execute(){
         Thread modify = new Thread(new AddMapValuesThread());
         Thread sum = new Thread(new SumMapValuesThread());
 
         modify.start();
         sum.start();
+    }
+
+    public static void main(String[] args) {
+        Task1WithException obj = new Task1WithException();
+        obj.configureHashMapExecution();
     }
 }
