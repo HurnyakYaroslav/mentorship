@@ -1,5 +1,7 @@
 package com.epam.mentorship.multithreading.task3;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Random;
 
 /*
@@ -11,36 +13,33 @@ Implement consumer, which will consume messages on specific topic and log to the
 (Optional) Application should create several consumers and producers that run in parallel.
  */
 //todo consume messages on specific topic
+@Slf4j
 public class Task3 {
     private static MessageQueue messageQueue = new MessageQueue();
 
-    private static class Producer implements Runnable {
-
-        @Override
-        public void run() {
-            while (true) {
-                String message = String.valueOf(new Random().nextInt());
-                messageQueue.put(message);
-                System.out.println("Add message: " + message);
-            }
-        }
-    }
-
-    private static class Consumer implements Runnable {
-
-        @Override
-        public void run() {
-            while (true) {
-                System.out.println("Get message: " + messageQueue.get());
-            }
-        }
-    }
-
     public static void main(String[] args) {
-        Thread readThread = new Thread(new Consumer());
-        Thread writeThread = new Thread(new Producer());
+        Thread readThread = new Thread(() -> {
+            while (true) {
+                try {
+                    log.warn("Consumer: {}", messageQueue.consume());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        Thread writeThread = new Thread(() -> {
+            while (true) {
+                try {
+                    log.warn("Producer");
+                    messageQueue.produce(String.valueOf(new Random().nextInt()));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         readThread.start();
         writeThread.start();
+
     }
 }
