@@ -1,18 +1,36 @@
 package com.epam.mentorship.multithreading.task2;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/*
+Create three threads:
+1st thread is infinitely writing random number to the collection;
+2nd thread is printing sum of the numbers in the collection;
+3rd is printing square root of sum of squares of all numbers in the collection.
+Make these calculations thread-safe using synchronization block. Fix the possible deadlock.
+ */
+//todo clarify about full synchronizing
+@Slf4j
 public class Task2WithBlock {
     private static List<Integer> list = new ArrayList<>();
     private static Object monitor = new Object();
 
     private static int getSum() {
         synchronized (monitor) {
-            return list.stream()
-                    .mapToInt(Integer::intValue)
-                    .sum();
+            int sum = 0;
+            try {
+                sum = list.stream()
+                        .mapToInt(Integer::intValue)
+                        .sum();
+                monitor.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return sum;
         }
     }
 
@@ -25,54 +43,51 @@ public class Task2WithBlock {
 
     private static double getRootOfSquaresSum() {
         synchronized (monitor) {
-            return Math.sqrt(getSumOfSquares());
+            double sqrt = 0;
+            monitor.notifyAll();
+            try {
+                sqrt = Math.sqrt(getSumOfSquares());
+                monitor.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return sqrt;
         }
     }
 
     private static void addValue() {
         synchronized (monitor) {
-            list.add(new Random().nextInt());
+            monitor.notifyAll();
+            try {
+                monitor.wait();
+                list.add(new Random().nextInt());
+                log.warn("Value added");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
 
-    private static class WritingThread implements Runnable {
-
-        @Override
-        public void run() {
+    public static void main(String[] args) {
+        Thread write = new Thread(() -> {
             while (true) {
                 addValue();
             }
-        }
-    }
-
-    private static class PrintSumThread implements Runnable {
-
-        @Override
-        public void run() {
+        });
+        Thread printSum = new Thread(() -> {
             while (true) {
-                System.out.println("Sum: " + getSum());
+                log.info("Sum: " + getSum());
             }
-        }
-    }
-
-    private static class PrintSquaresThread implements Runnable {
-
-        @Override
-        public void run() {
+        });
+        Thread printRoot = new Thread(() -> {
             while (true) {
-                System.out.println("Root of Squares sum: " + getRootOfSquaresSum());
+                log.info("Root of Squares sum: " + getRootOfSquaresSum());
             }
-        }
-    }
+        });
 
-    public static void main(String[] args) {
-        Thread write = new Thread(new WritingThread());
-        Thread printSum = new Thread(new PrintSumThread());
-        Thread printRoot = new Thread(new PrintSquaresThread());
-
-        write.start();
         printSum.start();
         printRoot.start();
+        write.start();
     }
 }
