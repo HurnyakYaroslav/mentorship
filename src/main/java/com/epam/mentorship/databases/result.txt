@@ -9,4 +9,48 @@
         Planning Time: 0.025 ms
         Execution Time: 14923.610 ms
 
-2.
+2.  find user by name
+    - without indexes:
+        Seq Scan on students  (cost=0.00..2387.00 rows=1 width=29) (actual time=0.196..31.147 rows=1 loops=1)
+          Filter: ((name)::text = 'Yaroslav655'::text)
+          Rows Removed by Filter: 99999
+        Planning Time: 0.113 ms
+        Execution Time: 31.182 ms
+
+
+    -b_tree indexes
+
+3.  find user by surname
+        -  without indexes
+           Seq Scan on students  (cost=0.00..2387.00 rows=11111 width=29) (actual time=0.053..51.645 rows=11111 loops=1)
+             Filter: ((surname)::text ~~ 'Hur%ak6%'::text)
+             Rows Removed by Filter: 88889
+           Planning Time: 0.213 ms
+           Execution Time: 52.585 ms
+
+
+4.  find user by phonenumber
+        - without indexes
+            Seq Scan on students  (cost=0.00..2387.00 rows=1010 width=40) (actual time=0.251..50.672 rows=106 loops=1)
+              Filter: ((phone_number)::text ~~ '0%3346%'::text)
+              Rows Removed by Filter: 99894
+            Planning Time: 0.106 ms
+            Execution Time: 50.808 ms
+
+5. find user with marks by surname
+        - without indexes
+            Gather  (cost=2872.37..13548.83 rows=100 width=44) (actual time=23.824..236.691 rows=1016 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              ->  Parallel Hash Join  (cost=1872.37..12538.83 rows=42 width=44) (actual time=14.950..217.849 rows=339 loops=3)
+                    Hash Cond: (er.student_id = students.id)
+                    ->  Parallel Seq Scan on exam_result er  (cost=0.00..9572.67 rows=416667 width=8) (actual time=0.024..96.557 rows=333333 loops=3)
+                    ->  Parallel Hash  (cost=1872.29..1872.29 rows=6 width=44) (actual time=14.182..14.182 rows=33 loops=3)
+                          Buckets: 1024  Batches: 1  Memory Usage: 104kB
+                          ->  Parallel Seq Scan on students  (cost=0.00..1872.29 rows=6 width=44) (actual time=0.175..14.003 rows=33 loops=3)
+                                Filter: ((surname)::text ~~ '%333'::text)
+                                Rows Removed by Filter: 33300
+            Planning Time: 0.367 ms
+            Execution Time: 237.161 ms
+
+
