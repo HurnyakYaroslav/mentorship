@@ -1,0 +1,6 @@
+1. generate data :
+    - without indexes:
+
+    - with b_tree index:
+
+2.

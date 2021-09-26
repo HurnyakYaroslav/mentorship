@@ -4,7 +4,7 @@ create table if not exists students
     name          VARCHAR(20),
     surname       varchar(20),
     date_of_birth date,
-    phone_number  varchar(11) unique,
+    phone_number  varchar(11),
     primary_skill varchar(11),
     created_datetime date,
     updated_datetime date

@@ -1,3 +1,5 @@
+select generatestudents();
+
 insert into students (name, surname, date_of_birth, phone_number, primary_skill, created_datetime,
                   updated_datetime)
 values
