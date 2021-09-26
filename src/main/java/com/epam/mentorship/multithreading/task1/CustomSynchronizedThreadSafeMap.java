@@ -9,6 +9,8 @@ public class CustomSynchronizedThreadSafeMap<K, V> implements Map<K, V> {
 
     @Override
     public synchronized int size() {
+        Arrays.asList();
+        List<String> immutableList = List.of("");
         return entrySet.size();
     }
 

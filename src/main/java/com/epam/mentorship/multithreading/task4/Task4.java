@@ -19,8 +19,8 @@ public class Task4 {
         Runnable second = () -> objectPool.take(5);
         Runnable third = () -> objectPool.take(6);
         Runnable fourth = () -> objectPool.take(7);
-        Runnable fifth = () -> objectPool.get();
-        Runnable sixth = () -> objectPool.get();
+        Runnable fifth = objectPool::get;
+        Runnable sixth = objectPool::get;
 
         ExecutorService executorService = Executors.newFixedThreadPool(6);
         executorService.submit(first);
