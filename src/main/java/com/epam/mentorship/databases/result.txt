@@ -1,6 +1,12 @@
 1. generate data :
     - without indexes:
+        Result  (cost=0.00..0.26 rows=1 width=4) (actual time=6539.493..6539.493 rows=1 loops=1)
+        Planning Time: 0.042 ms
+        Execution Time: 6544.021 ms
 
-    - with b_tree index:
+    - with b_tree indexes:
+        Result  (cost=0.00..0.26 rows=1 width=4) (actual time=14923.589..14923.590 rows=1 loops=1)
+        Planning Time: 0.025 ms
+        Execution Time: 14923.610 ms
 
 2.
