@@ -19,6 +19,17 @@
 
 
     -b_tree indexes
+       Index Scan using name_b_tree on students  (cost=0.42..8.44 rows=1 width=29) (actual time=0.061..0.062 rows=1 loops=1)
+         Index Cond: ((name)::text = 'Yaroslav655'::text)
+       Planning Time: 0.135 ms
+       Execution Time: 0.090 ms
+
+    -hash
+        Index Scan using name_hash on students  (cost=0.00..8.02 rows=1 width=29) (actual time=0.026..0.028 rows=1 loops=1)
+          Index Cond: ((name)::text = 'Yaroslav655'::text)
+        Planning Time: 0.112 ms
+        Execution Time: 0.053 ms
+
 
 3.  find user by surname
         -  without indexes
@@ -27,6 +38,13 @@
              Rows Removed by Filter: 88889
            Planning Time: 0.213 ms
            Execution Time: 52.585 ms
+        - hash
+        Seq Scan on students  (cost=0.00..2387.00 rows=11111 width=29) (actual time=0.026..40.028 rows=11111 loops=1)
+          Filter: ((surname)::text ~~ 'Hur%ak6%'::text)
+          Rows Removed by Filter: 88889
+        Planning Time: 0.134 ms
+        Execution Time: 40.814 ms
+
 
 
 4.  find user by phonenumber
@@ -36,6 +54,13 @@
               Rows Removed by Filter: 99894
             Planning Time: 0.106 ms
             Execution Time: 50.808 ms
+        - b-tree
+            Seq Scan on students  (cost=0.00..2387.00 rows=11111 width=29) (actual time=0.025..40.827 rows=11111 loops=1)
+              Filter: ((surname)::text ~~ 'Hur%ak6%'::text)
+              Rows Removed by Filter: 88889
+            Planning Time: 0.140 ms
+            Execution Time: 41.633 ms
+
 
 5. find user with marks by surname
         - without indexes
@@ -52,5 +77,35 @@
                                 Rows Removed by Filter: 33300
             Planning Time: 0.367 ms
             Execution Time: 237.161 ms
+        -b_tree
+            Gather  (cost=2872.37..13548.83 rows=100 width=44) (actual time=28.685..193.247 rows=1016 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              ->  Parallel Hash Join  (cost=1872.37..12538.83 rows=42 width=44) (actual time=18.706..179.348 rows=339 loops=3)
+                    Hash Cond: (er.student_id = students.id)
+                    ->  Parallel Seq Scan on exam_result er  (cost=0.00..9572.67 rows=416667 width=8) (actual time=0.025..75.348 rows=333333 loops=3)
+                    ->  Parallel Hash  (cost=1872.29..1872.29 rows=6 width=44) (actual time=17.542..17.542 rows=33 loops=3)
+                          Buckets: 1024  Batches: 1  Memory Usage: 104kB
+                          ->  Parallel Seq Scan on students  (cost=0.00..1872.29 rows=6 width=44) (actual time=0.610..17.172 rows=33 loops=3)
+                                Filter: ((surname)::text ~~ '%333'::text)
+                                Rows Removed by Filter: 33300
+            Planning Time: 0.383 ms
+            Execution Time: 193.485 ms
+        - hash
+            Gather  (cost=2872.37..13548.83 rows=100 width=44) (actual time=25.215..190.075 rows=1016 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              ->  Parallel Hash Join  (cost=1872.37..12538.83 rows=42 width=44) (actual time=18.351..176.189 rows=339 loops=3)
+                    Hash Cond: (er.student_id = students.id)
+                    ->  Parallel Seq Scan on exam_result er  (cost=0.00..9572.67 rows=416667 width=8) (actual time=0.031..72.927 rows=333333 loops=3)
+                    ->  Parallel Hash  (cost=1872.29..1872.29 rows=6 width=44) (actual time=17.410..17.411 rows=33 loops=3)
+                          Buckets: 1024  Batches: 1  Memory Usage: 104kB
+                          ->  Parallel Seq Scan on students  (cost=0.00..1872.29 rows=6 width=44) (actual time=0.416..17.065 rows=33 loops=3)
+                                Filter: ((surname)::text ~~ '%333'::text)
+                                Rows Removed by Filter: 33300
+            Planning Time: 0.499 ms
+            Execution Time: 190.330 ms
+
+
 
 
