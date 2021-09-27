@@ -1,7 +1,8 @@
 create table if not exists students
 (
     id            serial primary key,
-    name          VARCHAR(20),
+    name          VARCHAR(20) check (name ~ '^([^@#&])+$'),
+--    name          VARCHAR(20) constraint valid_name check (name ~ '^([^@#&])+$'),
     surname       varchar(20),
     date_of_birth date,
     phone_number  varchar(11),
