@@ -4,7 +4,7 @@ create or replace function getAverageMarks(input_student_id int)
 $$
 begin
     return sum(exam_result.mark)/count(exam_result.mark) as average_mark
-    from public.students
+    from students
     join exam_result on exam_result.student_id = students.id
     where (students.id = input_student_id);
 end
