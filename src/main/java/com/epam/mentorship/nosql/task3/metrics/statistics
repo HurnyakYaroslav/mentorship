@@ -1,0 +1,6 @@
+throughput without batch(100000 inserts)
+[main] INFO com.klymchuk.nosql.task3.LogDaoTest - throughput 263 ops/sec
+
+[main] INFO com.klymchuk.nosql.task3.LogDaoTest - throughput 2022 millisecond for 500 inserts
+[main] INFO com.klymchuk.nosql.task3.LogDaoTest - throughput batch 35 millisecond for 500 inserts
+
